@@ -39,4 +39,5 @@ mongoose.connect(
 //MIDDLEWARE
 
 app.use(express.json())
-app.use('/auth', require('./routers/userRouter.js'))
+app.use('/auth', require('./routers/userRouter'))
+app.use('/deck', require('./routers/deckRouter'))
