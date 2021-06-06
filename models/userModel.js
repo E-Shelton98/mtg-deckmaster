@@ -11,6 +11,8 @@ const mongoose = require('mongoose')
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true },
   passwordHash: { type: String, required: true },
+  username: { type: String, required: true },
+  friendCode: { type: String, required: true },
 })
 
 //Create user model using the user schema

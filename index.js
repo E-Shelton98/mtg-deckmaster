@@ -19,11 +19,6 @@ const PORT = process.env.PORT || 5000
 //Start our server listening on the chosen port, and log a message for verification
 app.listen(PORT, () => console.log(`Server listening on port: ${PORT}`))
 
-//Set up the get request at test.
-app.get('/test', (req, res) => {
-  res.send('It works')
-})
-
 /////////////////////////////////////////////////////////////
 //CONNECT TO MONGO
 
@@ -39,3 +34,9 @@ mongoose.connect(
     console.log('Connected to MongoDB')
   }
 )
+
+/////////////////////////////////////////////////////////////
+//MIDDLEWARE
+
+app.use(express.json())
+app.use('/auth', require('./routers/userRouter.js'))
