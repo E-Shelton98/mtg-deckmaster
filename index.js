@@ -1,6 +1,15 @@
+/////////////////////////////////////////////////////////////
+//DEPENDENCIES
+
 //Create const express by requiring dependency express
 const express = require('express')
+//Create const mongoose by requiring dependency mongoose
+const mongoose = require('mongoose')
+//Create const dotenv by requiring dependency dotenv
+const dotenv = require('dotenv').config()
 
+/////////////////////////////////////////////////////////////
+//SET UP SERVER
 //Create an application using the express function
 const app = express()
 
@@ -12,7 +21,21 @@ app.listen(PORT, () => console.log(`Server listening on port: ${PORT}`))
 
 //Set up the get request at test.
 app.get('/test', (req, res) => {
-    res.send("It works")
+  res.send('It works')
 })
 
-//mongodb+srv://<username>:<password>@cluster0.tefcf.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
+/////////////////////////////////////////////////////////////
+//CONNECT TO MONGO
+
+//Run connect function of mongoose, log status on connection
+mongoose.connect(
+  process.env.MDB_CONNECT,
+  {
+    useNewURLParser: true,
+    useUnifiedTopology: true,
+  },
+  (err) => {
+    if (err) return console.error(err)
+    console.log('Connected to MongoDB')
+  }
+)
