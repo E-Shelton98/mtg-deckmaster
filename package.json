@@ -4,5 +4,29 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.7"
-  }
+  },
+  "name": "mtg-deckmaster-server",
+  "version": "0.0.1",
+  "description": "A backend ME server for the mtg-deckmaster application.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "*.json"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/E-Shelton98/mtg-deckmaster-back.git"
+  },
+  "author": "Erik Shelton",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/E-Shelton98/mtg-deckmaster-back/issues"
+  },
+  "homepage": "https://github.com/E-Shelton98/mtg-deckmaster-back#readme"
 }
