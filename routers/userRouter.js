@@ -80,9 +80,11 @@ router.post('/', async (req, res) => {
     //SEND TOKEN AS HTTP-ONLY COOKIE
 
     //Send response with our token
-    res.cookie("token", token, {
+    res
+      .cookie('token', token, {
         httpOnly: true,
-    }).send()
+      })
+      .send()
   } catch (err) {
     console.error(err)
     res.status(500).send()
@@ -91,24 +93,64 @@ router.post('/', async (req, res) => {
 
 //Create user login post route
 router.post('/login', async (req, res) => {
-    try{
-        // extract variables from request body
-        const { email, password} = req.body
+  try {
+    // extract variables from request body
+    const { email, password } = req.body
 
-        /////////////////////////////////////////////////////
-        //VALIDATION
+    /////////////////////////////////////////////////////
+    //VALIDATION
 
-        //if either the email or password is not entered...
-        if (!email || !password) {
-            return res.status(400).json({
-                errorMessage: "Please enter all required fields."
-            })
-        }
+    //if either the email or password is not entered...
+    if (!email || !password) {
+      return res.status(400).json({
+        errorMessage: 'Please enter all required fields.',
+      })
     }
-    catch (err) {
-        console.error(err)
-        res.status(500).send()
+
+    //Check if this user exists via its email
+    const existingUser = await User.findOne({ email })
+    //if a user does NOT exist with this email...
+    if (!existingUser) {
+      return res.status(401).json({
+        errorMessage: 'Incorrect combination of email and password!',
+      })
     }
+
+    //Check if this user's password is correct
+    const passwordCorrect = await bcrypt.compare(
+      password,
+      existingUser.passwordHash
+    )
+    //if the password is NOT correct...
+    if (!passwordCorrect) {
+      return res.status(401).json({
+        errorMessage: 'Incorrect combination of email and password!',
+      })
+    }
+
+    /////////////////////////////////////////////////////////
+    //SIGN TOKEN
+    //Create const token using jwt function sign
+    const token = jwt.sign(
+      {
+        user: existingUser._id,
+      },
+      process.env.JWT_SECRET
+    )
+
+    /////////////////////////////////////////////////////////
+    //SEND TOKEN AS HTTP-ONLY COOKIE
+
+    //Send response with our token
+    res
+      .cookie('token', token, {
+        httpOnly: true,
+      })
+      .send()
+  } catch (err) {
+    console.error(err)
+    res.status(500).send()
+  }
 })
 
 //export user routes
