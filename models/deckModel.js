@@ -12,6 +12,7 @@ const deckSchema = new mongoose.Schema({
   name: { type: String, required: true },
   picture: String,
   description: String,
+  deckType: { type: String, default: 'Standard' },
   created: { type: Date, default: Date.now },
   updated: { type: Date, Default: Date.now },
   cards: { type: Array, required: true },
@@ -20,6 +21,7 @@ const deckSchema = new mongoose.Schema({
     losses: Number,
   },
   notes: [String],
+  user: String
 })
 
 //Create deck model using the deck schema
