@@ -53,9 +53,9 @@ router.get('/', auth, async (req, res) => {
   try {
     const decks = await Deck.find({ user: req.user })
     res.json(decks)
-  } catch (err) {
-    console.error(err)
-    res.status(500).send()
+   } catch (err) {
+     console.error(err)
+     res.status(500).send()
   }
 })
 

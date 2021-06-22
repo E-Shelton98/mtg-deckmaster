@@ -1,7 +1,5 @@
 /////////////////////////////////////////////////////////////
 //DEPENDENCIES
-//Create const fs by requiring module fs
-const fs = require('fs')
 //Create const fetch by requiring dependency node-fetch
 const fetch = require('node-fetch')
 //Create const express by requiring dependency express
@@ -47,7 +45,7 @@ app.listen(PORT, () => console.log(`Server listening on port: ${PORT}`))
 mongoose.connect(
   process.env.MDB_CONNECT,
   {
-    useNewURLParser: true,
+    useNewUrlParser: true,
     useUnifiedTopology: true,
   },
   (err) => {
@@ -73,14 +71,16 @@ function getScryData() {
     oracleBulkURI = data[0].download_uri
     //Fetch the oracle bulk data
     const oracleResponse = await fetch(oracleBulkURI)
-    //convert OracleResponse into JSON
-    const oracleData = await oracleResponse.json()
-    //Log that oracleData is fetched
-    console.log('oracleData fetched, writing to database.')
+    //convert oracleResponse into JSON
+    const oracleData = await oracleResponse.json().then(
+      //Log that oracleData is fetched
+      console.log('oracleData fetched, writing to database.')
+    )
     //Remove all entries in the Card group, insert all cards from bulk data.
     Card.deleteMany({}).then(() => {
-      Card.insertMany(oracleData)
-      console.log('OracleData Saved to Database.')
+      Card.insertMany(oracleData).then(
+        console.log('OracleData Saved to Database.')
+      )
     })
   }
   scryFetch(url)
@@ -96,6 +96,7 @@ setInterval(getScryData, 1000 * 60 * 60 * 24)
 app.use(express.json())
 app.use(cookieParser())
 app.use(limiter)
-app.use(cors)
+app.use(cors())
 app.use('/auth', require('./routers/userRouter'))
-app.use('/deck', require('./routers/deckRouter'))
+app.use('/decks', require('./routers/deckRouter'))
+app.use('/cards', require('./routers/cardRouter'))
