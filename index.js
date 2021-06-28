@@ -96,7 +96,9 @@ setInterval(getScryData, 1000 * 60 * 60 * 24)
 app.use(express.json())
 app.use(cookieParser())
 app.use(limiter)
-app.use(cors())
+app.use(cors({
+  origin: ['http://localhost:3000']
+}))
 app.use('/auth', require('./routers/userRouter'))
 app.use('/decks', require('./routers/deckRouter'))
 app.use('/cards', require('./routers/cardRouter'))
