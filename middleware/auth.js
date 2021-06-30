@@ -24,9 +24,6 @@ function auth(req, res, next) {
     //Set request user to verified user
     req.user = verified.user
 
-    /////////////////////////////////////////////////////////
-    //NEXT
-
     next()
   } catch (err) {
     console.error(err)

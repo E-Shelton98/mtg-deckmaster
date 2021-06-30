@@ -13,6 +13,9 @@ const bcrypt = require('bcryptjs')
 //Create const jwt by requiring dependency jsonwebtoken
 const jwt = require('jsonwebtoken')
 
+//Create const crypto by requiring dependency crypto
+const crypto = require('crypto')
+
 /////////////////////////////////////////////////////////////
 //USER ROUTES
 
@@ -20,7 +23,10 @@ const jwt = require('jsonwebtoken')
 router.post('/', async (req, res) => {
   try {
     //Extract variables from request body
-    const { email, password, username, friendCode } = req.body
+    const { email, password, username } = req.body
+
+    let friendCode = crypto.randomBytes(5).toString('hex')
+    console.log(friendCode)
 
     /////////////////////////////////////////////////////////
     //VALIDATION
@@ -95,20 +101,20 @@ router.post('/', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     // extract variables from request body
-    const { email, password } = req.body
+    const { username, password } = req.body
 
     /////////////////////////////////////////////////////
     //VALIDATION
 
     //if either the email or password is not entered...
-    if (!email || !password) {
+    if (!username || !password) {
       return res.status(400).json({
         errorMessage: 'Please enter all required fields.',
       })
     }
 
     //Check if this user exists via its email
-    const existingUser = await User.findOne({ email })
+    const existingUser = await User.findOne({ username })
     //if a user does NOT exist with this email...
     if (!existingUser) {
       return res.status(401).json({
@@ -161,6 +167,26 @@ router.get('/logout', (req, res) => {
       expires: new Date(0),
     })
     .send()
+})
+
+//Create user loggedIn get route
+router.get('/loggedIn', (req, res) => {
+  try {
+    const token = req.cookies.token
+
+    /////////////////////////////////////////////////////////
+    //VALIDATION
+    //if there is NOT a token...
+    if (!token) return res.status(200).json(false)
+
+    /////////////////////////////////////////////////////////
+    //JWT VERIFICATION
+    jwt.verify(token, process.env.JWT_SECRET)
+
+    res.send(true)
+  } catch (err) {
+    res.json(false)
+  }
 })
 
 //export user routes
