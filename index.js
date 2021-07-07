@@ -62,7 +62,7 @@ function getScryData() {
   //Universal URL for all bulk data bundles
   const url = 'https://api.scryfall.com/bulk-data'
   //Placeholder for Oracle information bulk data URI
-  let oracleBulkURI = ''
+  let oracleBulkURI = null
   //Fetch the Bulk Data information
   const scryFetch = async (url) => {
     const response = await fetch(url)
@@ -70,18 +70,19 @@ function getScryData() {
     //Using the fetched data set the OracleBulkURI
     oracleBulkURI = data[0].download_uri
     //Fetch the oracle bulk data
-    const oracleResponse = await fetch(oracleBulkURI)
+    let oracleResponse = await fetch(oracleBulkURI)
     //convert oracleResponse into JSON
-    const oracleData = await oracleResponse.json().then(
+    let oracleData = await oracleResponse.json().then(
       //Log that oracleData is fetched
       console.log('oracleData fetched, writing to database.')
     )
     //Remove all entries in the Card group, insert all cards from bulk data.
     Card.deleteMany({}).then(() => {
       Card.insertMany(oracleData).then(
-        console.log('OracleData Saved to Database.')
+        console.log('oracleData Saved to Database.')
       )
     })
+    oracleData = null
   }
   scryFetch(url)
 }
@@ -96,10 +97,12 @@ setInterval(getScryData, 1000 * 60 * 60 * 24)
 app.use(express.json())
 app.use(cookieParser())
 app.use(limiter)
-app.use(cors({
-  origin: ['http://localhost:3000'],
-  credentials: true
-}))
+app.use(
+  cors({
+    origin: ['http://localhost:3000'],
+    credentials: true,
+  })
+)
 app.use('/auth', require('./routers/userRouter'))
 app.use('/decks', require('./routers/deckRouter'))
 app.use('/cards', require('./routers/cardRouter'))
