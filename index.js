@@ -82,15 +82,13 @@ function getScryData() {
         console.log('oracleData Saved to Database.')
       )
     })
-    oracleResponse = null
-    oracleData = null
   }
   scryFetch(url)
 }
 //Get ScryData on server start
 getScryData()
 //Get ScryData every 24 hours...
-//setInterval(getScryData, 1000 * 60 * 60 * 24)
+setInterval(getScryData, 1000 * 60 * 60 * 24)
 
 /////////////////////////////////////////////////////////////
 //MIDDLEWARE
