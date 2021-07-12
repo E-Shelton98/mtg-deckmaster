@@ -93,7 +93,7 @@ function getScryData() {
 //Get ScryData on server start
 getScryData()
 //Get ScryData every 24 hours...
-setInterval(getScryData, 1000 * 60 * 60 * 24)
+//setInterval(getScryData, 1000 * 60 * 60 * 24)
 
 /////////////////////////////////////////////////////////////
 //MIDDLEWARE
