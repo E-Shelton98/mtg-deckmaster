@@ -64,23 +64,19 @@ function getScryData() {
   const url = 'https://api.scryfall.com/bulk-data'
   //Fetch the Bulk Data information
   const scryFetch = async (url) => {
-    const response = await fetch(url)
-    const { data } = await response.json()
+    const bulkURIRequest = await fetch(url).then((response) => response.json())
+
     //Using the fetched data set the OracleBulkURI
-    let oracleBulkURI = data[0].download_uri
+    let oracleBulkURI = bulkURIRequest.data[0].download_uri
     //Fetch the oracle bulk data
-    let oracleResponse = await fetch(oracleBulkURI)
-    //convert oracleResponse into JSON
-    let oracleData = await oracleResponse.json().then(
-      //Log that oracleData is fetched
-      console.log('oracleData fetched, writing to database.'),
-      oracleResponse = null
+    const bulkOracleData = await fetch(oracleBulkURI).then((response) =>
+      response.json()
     )
+
     //Remove all entries in the Card group, insert all cards from bulk data.
     Card.deleteMany({}).then(() => {
-      Card.insertMany(oracleData).then(
+      Card.insertMany(bulkOracleData).then(
         console.log('oracleData Saved to Database.'),
-        oracleData = null,
       )
     })
   }
