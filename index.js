@@ -1,3 +1,4 @@
+'use strict'
 /////////////////////////////////////////////////////////////
 //DEPENDENCIES
 //Create const fetch by requiring dependency node-fetch
@@ -73,21 +74,17 @@ function getScryData() {
     let oracleData = await oracleResponse.json().then(
       //Log that oracleData is fetched
       console.log('oracleData fetched, writing to database.'),
-      (this.oracleResponse = null)
+      oracleResponse = null
     )
     //Remove all entries in the Card group, insert all cards from bulk data.
     Card.deleteMany({}).then(() => {
       Card.insertMany(oracleData).then(
         console.log('oracleData Saved to Database.'),
-        this.oracleData = null
+        oracleData = null,
       )
     })
-
-    
-    
   }
 
-  oracleBulkURI = null
   scryFetch(url)
 }
 //Get ScryData on server start
