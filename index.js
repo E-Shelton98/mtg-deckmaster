@@ -16,6 +16,8 @@ const cors = require('cors')
 //Create const cookieParser by requiring dependency cookieParser
 const cookieParser = require('cookie-parser')
 
+const numeral = require('numeral')
+
 //Import card model for ScryFall card data seeding.
 const Card = require('./models/cardModel')
 
@@ -37,7 +39,7 @@ const limiter = rateLimit({
 })
 
 //Start the server listening on the chosen port, and log a message for verification
-app.listen(PORT, () => console.log(`Server listening on port: ${PORT}`))
+app.listen(PORT)
 
 /////////////////////////////////////////////////////////////
 //CONNECT TO MONGO
@@ -64,19 +66,25 @@ function getScryData() {
   const url = 'https://api.scryfall.com/bulk-data'
   //Fetch the Bulk Data information
   const scryFetch = async (url) => {
-    const bulkURIRequest = await fetch(url).then((response) => response.json())
+    //Fetch the bulk data information to get the download uri for the oracle data
+    let bulkURIRequest = await fetch(url).then((response) => response.json())
 
     //Using the fetched data set the OracleBulkURI
     let oracleBulkURI = bulkURIRequest.data[0].download_uri
+
     //Fetch the oracle bulk data
-    const bulkOracleData = await fetch(oracleBulkURI).then((response) =>
+    let bulkOracleData = await fetch(oracleBulkURI).then((response) =>
       response.json()
     )
 
-    //Remove all entries in the Card group, insert all cards from bulk data.
+    //Remove all entries in the Card group, insert all cards from bulk data
     Card.deleteMany({}).then(() => {
       Card.insertMany(bulkOracleData).then(
+        //Log that data has been saved to MongoDB
         console.log('oracleData Saved to Database.'),
+        //Nullify memory usage of the bulk variables
+        (bulkURIRequest = null),
+        (bulkOracleData = null)
       )
     })
   }
@@ -103,3 +111,14 @@ app.use(
 app.use('/auth', require('./routers/userRouter'))
 app.use('/decks', require('./routers/deckRouter'))
 app.use('/cards', require('./routers/cardRouter'))
+
+
+//Interval for memoryUsage logging
+setInterval(() => {
+  const { rss, heapTotal, heapUsed } = process.memoryUsage()
+  console.log(
+    `rss: ${numeral(rss).format('0.0 ib')}, heapTotal: ${numeral(
+      heapTotal
+    ).format('0,0 ib')}, heapUsed: ${numeral(heapUsed).format('0.0 ib')}.`
+  )
+}, 5000)

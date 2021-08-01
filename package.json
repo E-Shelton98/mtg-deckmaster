@@ -28,10 +28,12 @@
     "express-rate-limit": "^5.2.6",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.13",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "numeral": "^2.0.6"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"
+    
   },
   "bugs": {
     "url": "https://github.com/E-Shelton98/mtg-deckmaster-back/issues"
