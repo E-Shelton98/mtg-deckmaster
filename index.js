@@ -81,29 +81,28 @@ function getScryData() {
     Card.deleteMany({}).then(() => {
       Card.insertMany(bulkOracleData).then(
         //Log that data has been saved to MongoDB
-        console.log('oracleData Saved to Database.'),
+        console.log('oracleData Saved to Database.')
+      ),
         //Nullify memory usage of the bulk variables
         (bulkURIRequest = null),
         (bulkOracleData = null)
-      )
     })
     //Interval for memoryUsage logging
-    setInterval(() => {
+    /*setInterval(() => {
       const { rss, heapTotal, heapUsed } = process.memoryUsage()
       console.log(
         `MEMORY USAGE --- rss: ${numeral(rss).format('0.0 b')}, heapTotal: ${numeral(
           heapTotal
         ).format('0,0 b')}, heapUsed: ${numeral(heapUsed).format('0.0 b')}.`
       )
-    }, 1000)
+    }, 1000)*/
   }
-
   scryFetch(url)
 }
 //Get ScryData on server start
 getScryData()
 //Get ScryData every 24 hours...
-setInterval(getScryData, 1000 * 60 * 60 * 24)
+//setInterval(getScryData, 1000 * 60 * 60 * 24)
 
 /////////////////////////////////////////////////////////////
 //MIDDLEWARE
