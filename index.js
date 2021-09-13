@@ -87,6 +87,15 @@ function getScryData() {
         (bulkOracleData = null)
       )
     })
+    //Interval for memoryUsage logging
+    setInterval(() => {
+      const { rss, heapTotal, heapUsed } = process.memoryUsage()
+      console.log(
+        `MEMORY USAGE --- rss: ${numeral(rss).format('0.0 b')}, heapTotal: ${numeral(
+          heapTotal
+        ).format('0,0 b')}, heapUsed: ${numeral(heapUsed).format('0.0 b')}.`
+      )
+    }, 1000)
   }
 
   scryFetch(url)
@@ -94,7 +103,7 @@ function getScryData() {
 //Get ScryData on server start
 getScryData()
 //Get ScryData every 24 hours...
-//setInterval(getScryData, 1000 * 60 * 60 * 24)
+setInterval(getScryData, 1000 * 60 * 60 * 24)
 
 /////////////////////////////////////////////////////////////
 //MIDDLEWARE
@@ -111,14 +120,3 @@ app.use(
 app.use('/auth', require('./routers/userRouter'))
 app.use('/decks', require('./routers/deckRouter'))
 app.use('/cards', require('./routers/cardRouter'))
-
-
-//Interval for memoryUsage logging
-setInterval(() => {
-  const { rss, heapTotal, heapUsed } = process.memoryUsage()
-  console.log(
-    `rss: ${numeral(rss).format('0.0 ib')}, heapTotal: ${numeral(
-      heapTotal
-    ).format('0,0 ib')}, heapUsed: ${numeral(heapUsed).format('0.0 ib')}.`
-  )
-}, 5000)
