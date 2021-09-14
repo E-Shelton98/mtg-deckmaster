@@ -47,14 +47,5 @@ router.get('/', auth, async (req, res) => {
   }
 })
 
-function ObjectFilter(obj) {
-  let filteredObject = {}
-  for (const key in obj) {
-    if (obj[key] != undefined) {
-      filteredObject[key] = obj[key]
-    }
-  }
-  return filteredObject
-}
 
 module.exports = router

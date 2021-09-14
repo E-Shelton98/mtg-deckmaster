@@ -61,43 +61,34 @@ mongoose.connect(
 //SCRYFALL DATA
 //Get the ScryFall Bulk data once every 24 hours to keep up to date and save to database.
 
-function getScryData() {
+async function getScryData() {
   //Universal URL for all bulk data bundles
   const url = 'https://api.scryfall.com/bulk-data'
-  //Fetch the Bulk Data information
-  const scryFetch = async (url) => {
-    //Fetch the bulk data information to get the download uri for the oracle data
-    let bulkURIRequest = await fetch(url).then((response) => response.json())
+  //Fetch the bulk data information to get the download uri for the oracle data
+  let bulkURIRequest = await fetch(url).then((response) => response.json())
 
-    //Using the fetched data set the OracleBulkURI
-    let oracleBulkURI = bulkURIRequest.data[0].download_uri
+  //Using the fetched data set the OracleBulkURI
+  let oracleBulkURI = bulkURIRequest.data[0].download_uri
+  bulkURIRequest = null
+  //Fetch the oracle bulk data
+  let bulkOracleData = await fetch(oracleBulkURI).then((response) =>
+    response.json()
+  )
 
-    //Fetch the oracle bulk data
-    let bulkOracleData = await fetch(oracleBulkURI).then((response) =>
-      response.json()
-    )
+  //Remove all entries in the Card group, insert all cards from bulk data
+  Card.deleteMany({}, function (error, response) {
+    if (error) return console.error(error)
+    console.log(response)
+    console.log('GOODBYE NOW!!!')
+  })
 
-    //Remove all entries in the Card group, insert all cards from bulk data
-    Card.deleteMany({}).then(() => {
-      Card.insertMany(bulkOracleData).then(
-        //Log that data has been saved to MongoDB
-        console.log('oracleData Saved to Database.')
-      ),
-        //Nullify memory usage of the bulk variables
-        (bulkURIRequest = null),
-        (bulkOracleData = null)
-    })
-    //Interval for memoryUsage logging
-    /*setInterval(() => {
-      const { rss, heapTotal, heapUsed } = process.memoryUsage()
-      console.log(
-        `MEMORY USAGE --- rss: ${numeral(rss).format('0.0 b')}, heapTotal: ${numeral(
-          heapTotal
-        ).format('0,0 b')}, heapUsed: ${numeral(heapUsed).format('0.0 b')}.`
-      )
-    }, 1000)*/
-  }
-  scryFetch(url)
+  await Card.insertMany(bulkOracleData,).then(function(error, response) {
+    console.log('HELLO THERE!!!')
+    response = null
+    console.log(response)
+    bulkOracleData = null
+    bulkURIRequest = null
+  })
 }
 //Get ScryData on server start
 getScryData()
@@ -119,3 +110,15 @@ app.use(
 app.use('/auth', require('./routers/userRouter'))
 app.use('/decks', require('./routers/deckRouter'))
 app.use('/cards', require('./routers/cardRouter'))
+
+//Interval for memoryUsage logging
+setInterval(() => {
+  const { rss, heapTotal, heapUsed } = process.memoryUsage()
+  console.log(
+    `MEMORY USAGE --- rss: ${numeral(rss).format(
+      '0.0 b'
+    )}, heapTotal: ${numeral(heapTotal).format('0,0 b')}, heapUsed: ${numeral(
+      heapUsed
+    ).format('0.0 b')}.`
+  )
+}, 1000)
