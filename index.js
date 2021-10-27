@@ -1,4 +1,4 @@
-'use strict'
+"use strict"
 /////////////////////////////////////////////////////////////
 //DEPENDENCIES
 //Create const fetch by requiring dependency node-fetch
@@ -38,7 +38,7 @@ const limiter = rateLimit({
   max: 10, //Limit each IP to 10 requests per second/windowMs
 })
 
-//Start the server listening on the chosen port, and log a message for verification
+//Start the server listening on the chosen port
 app.listen(PORT)
 
 /////////////////////////////////////////////////////////////
@@ -62,33 +62,34 @@ mongoose.connect(
 //Get the ScryFall Bulk data once every 24 hours to keep up to date and save to database.
 
 async function getScryData() {
-  //Universal URL for all bulk data bundles
-  const url = 'https://api.scryfall.com/bulk-data'
   //Fetch the bulk data information to get the download uri for the oracle data
-  let bulkURIRequest = await fetch(url).then((response) => response.json())
-
+  let bulkURIRequest = await fetch('https://api.scryfall.com/bulk-data').then(
+    (response) => response.json()
+  )
   //Using the fetched data set the OracleBulkURI
   let oracleBulkURI = bulkURIRequest.data[0].download_uri
   bulkURIRequest = null
+  console.log('bulkURIRequest and oracleBulkURI ', bulkURIRequest, oracleBulkURI)
   //Fetch the oracle bulk data
   let bulkOracleData = await fetch(oracleBulkURI).then((response) =>
     response.json()
   )
+  oracleBulkURI = null
 
   //Remove all entries in the Card group, insert all cards from bulk data
   Card.deleteMany({}, function (error, response) {
     if (error) return console.error(error)
-    console.log(response)
+    console.log('This is deleteMany Response, ', response)
     console.log('GOODBYE NOW!!!')
   })
 
   await Card.insertMany(bulkOracleData,).then(function(error, response) {
+    if (error) return console.error(error)
     console.log('HELLO THERE!!!')
     response = null
-    console.log(response)
     bulkOracleData = null
-    bulkURIRequest = null
   })
+
 }
 //Get ScryData on server start
 getScryData()
