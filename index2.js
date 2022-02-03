@@ -62,86 +62,90 @@ mongoose.connect(
 )
 
 /////////////////////////////////////////////////////////////
-//SCRYFALL DATA
-//Get the ScryFall Bulk data once every 24 hours to keep up to date and save to database.
+//DB SETUP
+//Initial setup of the DB card collection, including clearing the DB and removing the library.json file
 
-async function getScryData() {
-  fs.unlink('./library.json', (err) => {
-    if (err) {
-      console.error(err)
+async function dbSetup() {
+  //Remove library.json from directory if present, and clear all cards from db
+  async function dbCleaner() {
+    //Check if library.json exists in directory and remove if needed
+    if (fs.existsSync('./library.json') === true) {
+      fs.unlink('./library.json', (err) => {
+        if (err) {
+          console.error(err)
+        } else {
+          console.log('./library.json removed from directory')
+        }
+      })
     }
-  })
-  //Fetch the bulk data information to get the download uri for the oracle data
-  let bulkURIRequest = await fetch('https://api.scryfall.com/bulk-data').then(
-    (response) => response.json()
-  )
-  //Using the fetched data set the OracleBulkURI
-  let oracleBulkURI = bulkURIRequest.data[0].download_uri
-  bulkURIRequest = null
-
-  //Remove all entries in the Card group, insert all cards from bulk data
-  await Card.deleteMany().then(() => {})
-
-  //Fetch the oracle bulk data
-  const streamPipeline = promisify(pipeline)
-
-  const bulkOracleData = await fetch(oracleBulkURI)
-
-  if (!bulkOracleData.ok)
-    throw new Error(`unexpected response ${bulkOracleData.statusText}`)
-
-  await streamPipeline(
-    bulkOracleData.body,
-    fs.createWriteStream('./library.json')
-  )
-
-  const jsonStream = StreamArray.withParser()
-
-  //internal Node readable stream option, pipe to stream-json to convert it for us
-  fs.createReadStream('./library.json').pipe(jsonStream.input)
-
-  jsonStream.on('data', ({ key, value }) => {
-    addToLibrary(key, value)
-  })
-
-  async function addToLibrary(key, value) {
-    await Card.create(value).then(() => {})
-    key = null
-    value = null
+    //Delete all cards from the card collection in the database
+    return Card.deleteMany()
+      .then((res) => console.log(`deleted ${res.deletedCount} cards from db.`))
+      .catch((e) => console.error(e))
   }
 
-  jsonStream.on('end', () => {
-    console.log('All Done')
-  })
+  //Fetch bulk card data from ScryFall API, save to library.json, and insert to db
+  async function libraryCreator(dbPopulate) {
+    //Fetch bulk data information from ScryFall API to get oracle data download uri
+    let bulkURIRequest = await fetch('https://api.scryfall.com/bulk-data').then(
+      (response) => response.json()
+    )
+    let oracleBulkURI = bulkURIRequest.data[0].download_uri
 
-  jsonStream.on('error', (err) => {
-    console.error(err)
-  })
+    //Fetch card information bulk data
+    const bulkOracleData = await fetch(oracleBulkURI)
 
-  /*let cardLibrary = fs.createReadStream('./library.json', 'utf8')
+    //Create a write stream to create a library.json file that holds bulkOracleData
+    const streamPipeline = promisify(pipeline)
+    if (!bulkOracleData.ok) {
+      throw new Error(`unexpected response ${bulkOracleData.statusText}`)
+    }
 
-  cardLibrary.on('data', function(chunk) {
-    console.log('new chunk received: ', chunk)
-  })*/
-  oracleBulkURI = null
+    await streamPipeline(
+      bulkOracleData.body,
+      fs.createWriteStream('./library.json')
+    )
 
-  //Remove all entries in the Card group, insert all cards from bulk data
-  /*Card.deleteMany({}, function (error, response) {
-    if (error) return console.error(error)
-    console.log('GOODBYE NOW!!!')
-  })
+    dbPopulate()
+  }
 
-  await Card.insertMany(bulkOracleData).then(function (error, response) {
-    if (error) return console.error(error)
-    console.log('HELLO THERE!!!')
-    response = null
-    bulkOracleData = null
-  })*/
+  async function dbPopulate() {
+    const jsonStream = StreamArray.withParser()
+
+    fs.createReadStream('./library.json').pipe(jsonStream.input)
+
+    jsonStream.on('data', ({ key, value }) => {
+      global.gc()
+      addToLibrary(value)
+    })
+
+    jsonStream.on('end', () => console.log('Cards added to db collection!'))
+
+    jsonStream.on('error', (err) => console.error(err))
+
+    async function addToLibrary(value) {
+      return Card.insertMany(
+        value,
+        { limit: 3, rawResult: true, lean: true },
+        function (err, res) {
+          if (err) {
+            console.error(err)
+          } else {
+            res = null
+            global.gc()
+          }
+        }
+      )
+    }
+  }
+
+  dbCleaner()
+  libraryCreator(dbPopulate)
 }
-//Get ScryData on server start
-getScryData()
-//Get ScryData every 24 hours...
-//setInterval(getScryData, 1000 * 60 * 60 * 24)
+
+dbSetup()
+//Get new library data every 24 hours...
+//setInterval(dbSetup(), 1000 * 60 * 60 * 24)
 
 /////////////////////////////////////////////////////////////
 //MIDDLEWARE
