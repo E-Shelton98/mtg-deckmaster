@@ -1,8 +1,13 @@
-"use strict"
+'use strict'
 /////////////////////////////////////////////////////////////
 //DEPENDENCIES
 //Create const fetch by requiring dependency node-fetch
-const fetch = require('node-fetch')
+const { fetch } = require('undici')
+const { TextDecoderStream } = require('node:stream/web')
+const fs = require('fs')
+const { pipeline } = require('stream')
+const { promisify } = require('util')
+const StreamArray = require('stream-json/streamers/StreamArray')
 //Create const express by requiring dependency express
 const express = require('express')
 //Create const rateLimit by requiring dependency express-rate-limit
@@ -58,43 +63,98 @@ mongoose.connect(
 )
 
 /////////////////////////////////////////////////////////////
-//SCRYFALL DATA
-//Get the ScryFall Bulk data once every 24 hours to keep up to date and save to database.
+//DB SETUP
+//Initial setup of the DB card collection, including clearing the DB and removing the library.json file
 
-async function getScryData() {
-  //Fetch the bulk data information to get the download uri for the oracle data
-  let bulkURIRequest = await fetch('https://api.scryfall.com/bulk-data').then(
-    (response) => response.json()
-  )
-  //Using the fetched data set the OracleBulkURI
-  let oracleBulkURI = bulkURIRequest.data[0].download_uri
-  bulkURIRequest = null
-  console.log('bulkURIRequest and oracleBulkURI ', bulkURIRequest, oracleBulkURI)
-  //Fetch the oracle bulk data
-  let bulkOracleData = await fetch(oracleBulkURI).then((response) =>
-    response.json()
-  )
-  oracleBulkURI = null
+async function dbSetup() {
+  //Remove library.json from directory if present, and clear all cards from db
+  async function dbCleaner() {
+    //Delete all cards from the card collection in the database
+    return Card.deleteMany()
+      .then((res) => console.log(`deleted ${res.deletedCount} cards from db.`))
+      .catch((e) => console.error(e))
+  }
 
-  //Remove all entries in the Card group, insert all cards from bulk data
-  Card.deleteMany({}, function (error, response) {
-    if (error) return console.error(error)
-    console.log('This is deleteMany Response, ', response)
-    console.log('GOODBYE NOW!!!')
-  })
+  //Fetch bulk card data from ScryFall API and insert to db using readable stream
+  async function libraryCreator() {
+    //Fetch bulk data information from ScryFall API to get oracle data download uri
+    let bulkURIRequest = await fetch('https://api.scryfall.com/bulk-data').then(
+      (response) => response.json()
+    )
+    let oracleBulkURI = bulkURIRequest.data[0].download_uri
 
-  await Card.insertMany(bulkOracleData,).then(function(error, response) {
-    if (error) return console.error(error)
-    console.log('HELLO THERE!!!')
-    response = null
-    bulkOracleData = null
-  })
+    //Fetch card information bulk data
+    const bulkOracleData = await fetch(oracleBulkURI)
+    const stream = bulkOracleData.body
+    const textStream = stream.pipeThrough(new TextDecoderStream())
+    let completedChunks = 0
+    let chunkRemains = ''
+    for await (const chunk of textStream) {
+      const filterJSON = function (chunk) {
+        let openBrace = 0
+        let closeBrace = 0
+        let cleanedChunk = ''
+        if (completedChunks == 0) {
+          cleanedChunk = chunk.slice(1)
+          chunk = null
+        } else {
+          cleanedChunk = chunk
+          chunk = null
+        }
+        let cleanedChunkRemains = chunkRemains.slice(0)
+        chunkRemains = null
+        cleanedChunk = cleanedChunkRemains + cleanedChunk
 
+        for (let i = 0; i <= cleanedChunk.length; i++) {
+          if (cleanedChunk[i] === '{') {
+            openBrace = openBrace + 1
+          } else if (cleanedChunk[i] === '}') {
+            closeBrace = closeBrace + 1
+          }
+
+          if (cleanedChunk[i] == '}' && cleanedChunk[i - 1] == '}') {
+            if (openBrace === closeBrace) {
+              let validJSON = ''
+
+              if (cleanedChunk[0] == ',') {
+                cleanedChunk = cleanedChunk.slice(1)
+                validJSON = cleanedChunk.slice(0, i)
+              } else {
+                validJSON = cleanedChunk.slice(0, i + 1)
+              }
+
+              validJSON = JSON.parse(validJSON)
+              Card.create(validJSON).then((res) => res = null)
+      .catch((e) => console.error(e))
+              cleanedChunk = cleanedChunk.slice(i + 2)
+
+              i = 0
+              openBrace = 0
+              closeBrace = 0
+            }
+          }
+        }
+        chunkRemains = cleanedChunk
+        cleanedChunk = null
+
+        if (chunkRemains == ']') {
+          chunkRemains = null
+          cleanedChunk = null
+          return console.log('ALL CARDS ADDED TO DB SUCCESSFULLY!')
+        }
+        completedChunks += 1
+      }
+      filterJSON(chunk)
+    }
+  }
+
+  dbCleaner()
+  libraryCreator()
 }
-//Get ScryData on server start
-getScryData()
-//Get ScryData every 24 hours...
-//setInterval(getScryData, 1000 * 60 * 60 * 24)
+
+dbSetup()
+//Get new library data every 24 hours...
+//setInterval(dbSetup(), 1000 * 60 * 60 * 24)
 
 /////////////////////////////////////////////////////////////
 //MIDDLEWARE
