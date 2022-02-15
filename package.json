@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon --optimize_for_size --max_old_space_size=460 index.js"
   },
   "nodemonConfig": {
     "ignore": [
@@ -29,11 +29,12 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.13",
     "node-fetch": "^2.6.1",
-    "numeral": "^2.0.6"
+    "numeral": "^2.0.6",
+    "stream-json": "^1.7.3",
+    "undici": "^4.13.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"
-    
   },
   "bugs": {
     "url": "https://github.com/E-Shelton98/mtg-deckmaster-back/issues"
