@@ -4,10 +4,6 @@
 //Create const fetch by requiring dependency node-fetch
 const { fetch } = require('undici')
 const { TextDecoderStream } = require('node:stream/web')
-const fs = require('fs')
-const { pipeline } = require('stream')
-const { promisify } = require('util')
-const StreamArray = require('stream-json/streamers/StreamArray')
 //Create const express by requiring dependency express
 const express = require('express')
 //Create const rateLimit by requiring dependency express-rate-limit
@@ -64,7 +60,7 @@ mongoose.connect(
 
 /////////////////////////////////////////////////////////////
 //DB SETUP
-//Initial setup of the DB card collection, including clearing the DB and removing the library.json file
+//Initial setup of the DB card collection, including clearing the DB
 
 async function dbSetup() {
   //Remove library.json from directory if present, and clear all cards from db
@@ -84,9 +80,11 @@ async function dbSetup() {
     let oracleBulkURI = bulkURIRequest.data[0].download_uri
 
     //Fetch card information bulk data
-    const bulkOracleData = await fetch(oracleBulkURI)
-    const stream = bulkOracleData.body
-    const textStream = stream.pipeThrough(new TextDecoderStream())
+    let bulkOracleData = await fetch(oracleBulkURI)
+    let stream = bulkOracleData.body
+    let textStream = stream.pipeThrough(new TextDecoderStream())
+    bulkOracleData = null
+    stream = null
     let completedChunks = 0
     let chunkRemains = ''
     for await (const chunk of textStream) {
@@ -97,13 +95,13 @@ async function dbSetup() {
         if (completedChunks == 0) {
           cleanedChunk = chunk.slice(1)
           chunk = null
+          completedChunks = null
         } else {
           cleanedChunk = chunk
           chunk = null
         }
-        let cleanedChunkRemains = chunkRemains.slice(0)
+        cleanedChunk = chunkRemains + cleanedChunk
         chunkRemains = null
-        cleanedChunk = cleanedChunkRemains + cleanedChunk
 
         for (let i = 0; i <= cleanedChunk.length; i++) {
           if (cleanedChunk[i] === '{') {
@@ -114,7 +112,7 @@ async function dbSetup() {
 
           if (cleanedChunk[i] == '}' && cleanedChunk[i - 1] == '}') {
             if (openBrace === closeBrace) {
-              let validJSON = ''
+              let validJSON = undefined
 
               if (cleanedChunk[0] == ',') {
                 cleanedChunk = cleanedChunk.slice(1)
@@ -124,13 +122,15 @@ async function dbSetup() {
               }
 
               validJSON = JSON.parse(validJSON)
-              Card.create(validJSON).then((res) => res = null)
-      .catch((e) => console.error(e))
+              Card.create(validJSON)
+                .then((res) => (res = null))
+                .catch((e) => console.error(e))
               cleanedChunk = cleanedChunk.slice(i + 2)
 
               i = 0
               openBrace = 0
               closeBrace = 0
+              validJSON = null
             }
           }
         }
@@ -140,12 +140,14 @@ async function dbSetup() {
         if (chunkRemains == ']') {
           chunkRemains = null
           cleanedChunk = null
+          openBrace = null
+          closeBrace = null
           return console.log('ALL CARDS ADDED TO DB SUCCESSFULLY!')
         }
-        completedChunks += 1
       }
       filterJSON(chunk)
     }
+    textStream = null
   }
 
   dbCleaner()
