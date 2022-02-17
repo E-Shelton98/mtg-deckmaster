@@ -311,20 +311,22 @@ app.use('/cards', require('./routers/cardRouter'))
 //Interval used for easy memory usage logging during development
 //Currently have a memory usage bug, this allows easy tracking/trend viewing
 
-//Interval for memoryUsage logging
-setInterval(() => {
-  //Extrapolate the value of "rss", "heapTotal", and "heapUsed"
-  const { rss, heapTotal, heapUsed } = process.memoryUsage()
-  //Log the value of "rss", "heapTotal", and "heapUsed"
-  //Use Numeral for formatting
-  //Set formatting to Megabytes, in tenths place
-  //>> SAMPLE OUTPUT <<//
-  //"MEMORY USAGE --- rss: 79.9 MB, heapTotal: 29MB, heapUsed: 22.6 MB"
-  console.log(
-    `MEMORY USAGE --- rss: ${numeral(rss).format(
-      '0.0 b'
-    )}, heapTotal: ${numeral(heapTotal).format('0,0 b')}, heapUsed: ${numeral(
-      heapUsed
-    ).format('0.0 b')}.`
-  )
-}, 1000)
+if (process.env.NODE_ENV === 'development') {
+  //Interval for memoryUsage logging
+  setInterval(() => {
+    //Extrapolate the value of "rss", "heapTotal", and "heapUsed"
+    const { rss, heapTotal, heapUsed } = process.memoryUsage()
+    //Log the value of "rss", "heapTotal", and "heapUsed"
+    //Use Numeral for formatting
+    //Set formatting to Megabytes, in tenths place
+    //>> SAMPLE OUTPUT <<//
+    //"MEMORY USAGE --- rss: 79.9 MB, heapTotal: 29MB, heapUsed: 22.6 MB"
+    console.log(
+      `MEMORY USAGE --- rss: ${numeral(rss).format(
+        '0.0 b'
+      )}, heapTotal: ${numeral(heapTotal).format('0,0 b')}, heapUsed: ${numeral(
+        heapUsed
+      ).format('0.0 b')}.`
+    )
+  }, 1000)
+}

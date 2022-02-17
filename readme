@@ -48,6 +48,12 @@ npm run dev
 
 Use npm run dev to run the program with your inputted required .env variables as well as a memory usage logger and the memory constraints put in place by Heroku.
 
+```
+npm start
+```
+
+Use npm start to run the program in a production environment **without** memory logging, but still having the memory constraints of Heroku.
+
 ### Example ENV File
 ```
 MDB_CONNECT=mongodb+srv://database-user:example@cluster0.tefcf.mongodb.net/database?retryWrites=true&w=majority
