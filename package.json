@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --optimize_for_size --max_old_space_size=460 index.js",
-    "dev": "nodemon --optimize_for_size --max_old_space_size=460 index.js"
+    "start": "NODE_ENV=production node --optimize_for_size --max_old_space_size=460 index.js",
+    "dev": "NODE_ENV=development nodemon --optimize_for_size --max_old_space_size=460 index.js"
   },
   "nodemonConfig": {
     "ignore": [
