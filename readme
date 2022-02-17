@@ -1,33 +1,75 @@
 # MTG-Deckmaster(Backend)
 
 MTG-Deckmaster is a passion project designed with the idea of helping fans of the popular trading card game Magic: The Gathering to create and share their decks, along with tracking deck statistics such as Win/Loss percentage and strength versus weakness against other deck types or players.
+Included is a basic friends system, as well as importing the entire Magic: The Gathering library to a mongoDB via Mongoose.
 
 ## Installation
 
-This program is intended to be used in conjunction with the matching frontend application. Installation requires a few environmental keys for access to the development MongoDB. Besides that, you should be able to install all required dependencies with a simple npm install command.
+This program is intended to be used in conjunction with the matching frontend application. **Installation requires an environmental key for access to a MongoDB database, as well as a secret for JWT authentication**. Besides that, you should be able to install all required dependencies with a simple npm install command.
+
 ```
 npm install
 ```
 
+### Dependencies
+
+[bcryptjs](https://www.npmjs.com/package/bcryptjs)
+
+[cookie-parser](https://www.npmjs.com/package/cookie-parser)
+
+[cors](https://www.npmjs.com/package/cors)
+
+[dotenv](https://www.npmjs.com/package/dotenv)
+
+[express](https://www.npmjs.com/package/express)
+
+[express-rate-limit](https://www.npmjs.com/package/express-rate-limit)
+
+[jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)
+
+[mongoose](https://www.npmjs.com/package/mongoose)
+
+[undici](https://www.npmjs.com/package/undici)
+
+### Dev-Dependencies
+
+[numeral](https://www.npmjs.com/package/numeral)
+
+[nodemon](https://www.npmjs.com/package/nodemon)
+
+
 ## Usage
 
-This application uses ScryFall API bulk data to create an external Mongo database for housing all of the various cards in Magic as well as creating and tracking player profiles, friend lists, and decks. 
+This application uses ScryFall API bulk data to create an external Mongo database for housing all of the cards in Magic. As well as creating and tracking player profiles, friend lists, and decks through that same database using JWT tokens and hashing.
+
+```
+npm run dev
+```
+
+Use npm run dev to run the program with your inputted required .env variables as well as a memory usage logger and the memory constraints put in place by Heroku.
+
+### Example ENV File
+```
+MDB_CONNECT=mongodb+srv://database-user:example@cluster0.tefcf.mongodb.net/database?retryWrites=true&w=majority
+JWT_SECRET=mysecretkeyA1B2C3
+```
 
 ### Known Bugs
 
-Currently the application is having a problem with memory usage, it simply runs out of HEAP when deployed on Heroku or other hosting site.
+Currently the application is having a problem with memory usage, approximately 60% of the time the program will run out of memory and crash when constrained to a memory size of 512MB.
+Memory usage seems to vary from run to run between 100MB and 600MB.
 
 ### Future Feature Ideas
 
-Currently there are none in the works, but open to suggestions.
-
+Logging and Saving of a user's MTG card collection in the database, for both simple viewing, as well as informed deck building (ie, notifications that you have, do not have a card in a built deck).
+This will most likely require more memory overhead as collections can be quite large, though with node streaming as well as pagination memory usage can be minimized to useable levels I believe.
 
 
 # License
 
 MIT License
 
-Copyright (c) 2021 Erik Shelton
+Copyright (c) 2022 Erik Shelton
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -21,20 +21,18 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "cookie-parser": "^1.4.5",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
-    "dotenv": "^10.0.0",
-    "express": "^4.17.1",
-    "express-rate-limit": "^5.2.6",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "express-rate-limit": "^6.2.1",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.12.13",
-    "node-fetch": "^2.6.1",
-    "numeral": "^2.0.6",
-    "stream-json": "^1.7.3",
-    "undici": "^4.13.0"
+    "mongoose": "^6.2.2",
+    "undici": "^4.14.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.7"
+    "nodemon": "^2.0.15",
+    "numeral": "^2.0.6"
   },
   "bugs": {
     "url": "https://github.com/E-Shelton98/mtg-deckmaster-back/issues"
