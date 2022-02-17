@@ -18,8 +18,10 @@ const cors = require('cors')
 //Create const cookieParser for use in authorization of users
 const cookieParser = require('cookie-parser')
 
-//Create const numeral for use in displaying memory usage during development
-const numeral = require('numeral')
+if (process.env.NODE_ENV === 'development') {
+  //Create const numeral for use in displaying memory usage during development
+  var numeral = require('numeral')
+}
 
 //Import card model for pushing card data through mongoose
 const Card = require('./models/cardModel')
