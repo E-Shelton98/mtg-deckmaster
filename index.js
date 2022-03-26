@@ -112,9 +112,13 @@ app.use(limiter)
 
 //CORS WITH STRICT ORIGIN
 //WILL UPDATE WITH LIVE SITE WHEN APPLICABLE
-app.use(
-  cors()
-)
+const corsOptions = {
+  origin: '*',
+  credentials: true,
+  optionSuccessStatus: 200,
+}
+
+app.use(cors(corsOptions))
 
 //AUTH ROUTE FOR USER SIGN IN, LOG OUT, AND SIGN UP
 app.use('/auth', require('./routers/userRouter'))
