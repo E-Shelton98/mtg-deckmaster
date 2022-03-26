@@ -113,7 +113,7 @@ app.use(limiter)
 //CORS WITH STRICT ORIGIN
 //WILL UPDATE WITH LIVE SITE WHEN APPLICABLE
 const corsOptions = {
-  origin: 'https://mtg-deckmaster.netlify.app/',
+  origin: 'https://mtg-deckmaster.netlify.app',
   optionSuccessStatus: 200,
 }
 
