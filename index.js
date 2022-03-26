@@ -113,10 +113,7 @@ app.use(limiter)
 //CORS WITH STRICT ORIGIN
 //WILL UPDATE WITH LIVE SITE WHEN APPLICABLE
 app.use(
-  cors({
-    origin: 'https://mtg-deckmaster.netlify.app/',
-    credentials: true,
-  })
+  cors()
 )
 
 //AUTH ROUTE FOR USER SIGN IN, LOG OUT, AND SIGN UP
