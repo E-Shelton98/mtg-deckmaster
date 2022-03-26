@@ -13,7 +13,7 @@ const auth = require('../middleware/auth')
 /////////////////////////////////////////////////////////////
 //CARD ROUTES
 
-router.get('/', auth, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
 
     let queryObj = {
@@ -24,13 +24,30 @@ router.get('/', auth, async (req, res) => {
       if (key === 'colors') {
         //SET QUERY VARIABLES
         let colors = Array.from(req.query.colors)
-
-        queryObj['colors'] = colors
+        if (colors.indexOf('X') === -1) {
+          queryObj['colors'] = colors
+        }
+        
       }
       else if (key === 'format') {
-        queryObj[`legalities.${req.query[key]}`] = 'legal'
+        if (value != undefined && value != '') {
+          queryObj[`legalities.${req.query[key]}`] = 'legal'
+        }
+        if (req.query.restricted === 'true') {
+          queryObj[`legalities.${req.query[key]}`] = 'restricted'
+        }
       }
-      else {
+      else if (key === 'cmc') {
+        if (value != undefined && value != '') {
+          queryObj['cmc'] = parseInt(value, 10)
+        }
+      }
+      else if (key === 'name') {
+        if (value !== 'undefined' && value != '') {
+          queryObj['name'] = value
+        }
+      }
+      else if (key !== 'restricted'){
         queryObj[key] = value
       }
     }

@@ -21,11 +21,6 @@ const streamToMongoDB = require('stream-to-mongo-db').streamToMongoDB
 const request = require('request')
 const JSONStream = require('JSONStream')
 
-if (process.env.NODE_ENV === 'development') {
-  //Create const numeral for use in displaying memory usage during development
-  var numeral = require('numeral')
-}
-
 //Import card model for pushing card data through mongoose
 const Card = require('./models/cardModel')
 
@@ -88,9 +83,14 @@ async function libraryCreator() {
   const writableStream = streamToMongoDB(outputDBConfig)
 
   // create readable stream and consume it
-  request(oracleBulkURI).pipe(JSONStream.parse('*')).pipe(writableStream)
+  request
+    .get(oracleBulkURI)
+    .on('error', function (err) {
+      console.error(err)
+    })
+    .pipe(JSONStream.parse('*'))
+    .pipe(writableStream)
 }
-
 
 libraryCreator()
 
@@ -134,6 +134,9 @@ app.use('/cards', require('./routers/cardRouter'))
 //Currently have a memory usage bug, this allows easy tracking/trend viewing
 
 if (process.env.NODE_ENV === 'development') {
+  //Create const numeral for use in displaying memory usage during development
+  var numeral = require('numeral')
+
   //Interval for memoryUsage logging
   setInterval(() => {
     //Extrapolate the value of "rss", "heapTotal", and "heapUsed"
