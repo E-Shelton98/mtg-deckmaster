@@ -24,9 +24,9 @@ router.post('/', async (req, res) => {
   try {
     //Extract variables from request body
     const { email, password, username } = req.body
+    console.log(email, password, username)
 
     let friendCode = crypto.randomBytes(5).toString('hex')
-    console.log(friendCode)
 
     /////////////////////////////////////////////////////////
     //VALIDATION
@@ -81,6 +81,7 @@ router.post('/', async (req, res) => {
       },
       process.env.JWT_SECRET
     )
+    console.log('this is token: ', token)
 
     /////////////////////////////////////////////////////////
     //SEND TOKEN AS HTTP-ONLY COOKIE
@@ -102,6 +103,7 @@ router.post('/login', async (req, res) => {
   try {
     // extract variables from request body
     const { username, password } = req.body
+    console.log('login post variables: ', username, password)
 
     /////////////////////////////////////////////////////
     //VALIDATION
@@ -143,6 +145,8 @@ router.post('/login', async (req, res) => {
       },
       process.env.JWT_SECRET
     )
+
+    console.log('login token sign: ', token)
 
     /////////////////////////////////////////////////////////
     //SEND TOKEN AS HTTP-ONLY COOKIE
