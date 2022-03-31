@@ -111,11 +111,13 @@ app.use(cookieParser())
 app.use(limiter)
 
 //CORS WITH STRICT ORIGIN
-app.use(cors({
-  origin: ['http://localhost:3000'],
-  credentials: true,
-  optionsSuccessStatus: 200,
-}))
+app.use(
+  cors({
+    origin: ['https://https://mtg-deckmaster.netlify.app/'],
+    credentials: true,
+    optionsSuccessStatus: 200,
+  })
+)
 
 //AUTH ROUTE FOR USER SIGN IN, LOG OUT, AND SIGN UP
 app.use('/auth', require('./routers/userRouter'))
