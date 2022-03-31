@@ -113,7 +113,7 @@ app.use(limiter)
 //CORS WITH STRICT ORIGIN
 app.use(
   cors({
-    origin: ['https://https://mtg-deckmaster.netlify.app/'],
+    origin: ['https://mtg-deckmaster.netlify.app/'],
     credentials: true,
     optionsSuccessStatus: 200,
   })
