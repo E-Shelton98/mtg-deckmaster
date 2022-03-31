@@ -115,7 +115,8 @@ app.use(limiter)
 const corsOptions = {
   origin: 'https://mtg-deckmaster.netlify.app',
   credentials: true,
-  optionSuccessStatus: 200,
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200,
 }
 
 app.use(cors(corsOptions))
