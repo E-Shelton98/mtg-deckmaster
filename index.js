@@ -111,15 +111,11 @@ app.use(cookieParser())
 app.use(limiter)
 
 //CORS WITH STRICT ORIGIN
-//WILL UPDATE WITH LIVE SITE WHEN APPLICABLE
-const corsOptions = {
-  origin: 'https://mtg-deckmaster.netlify.app',
+app.use(cors({
+  origin: ['https://mtg-deckmaster.netlify.app'],
   credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization'],
   optionsSuccessStatus: 200,
-}
-
-app.use(cors(corsOptions))
+}))
 
 //AUTH ROUTE FOR USER SIGN IN, LOG OUT, AND SIGN UP
 app.use('/auth', require('./routers/userRouter'))
