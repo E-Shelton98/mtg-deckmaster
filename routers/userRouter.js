@@ -90,8 +90,9 @@ router.post('/', async (req, res) => {
     res
       .cookie('token', token, {
         httpOnly: true,
+        secure: true,
       })
-      .send()
+      .status(200).send()
   } catch (err) {
     console.error(err)
     res.status(500).send()
@@ -189,8 +190,9 @@ router.get('/loggedIn', (req, res) => {
     /////////////////////////////////////////////////////////
     //JWT VERIFICATION
     jwt.verify(token, process.env.JWT_SECRET)
+    console.log(jwt)
 
-    res.send(true)
+    res.status(200).send(true)
   } catch (err) {
     res.json(false)
   }
