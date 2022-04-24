@@ -70,10 +70,7 @@ async function libraryCreator() {
   await Card.deleteMany()
     .then((res) => console.log(`deleted ${res.deletedCount} cards from db.`))
     .catch((e) => console.error(e))
-
-  //Disconnect from db because 'stream-to-mongoDB' reconnects
-  await mongoose.disconnect()
-  
+ 
   //Set 'stream-to-mongodb' options
   const outputDBConfig = {
     dbURL: process.env.MDB_CONNECT,
