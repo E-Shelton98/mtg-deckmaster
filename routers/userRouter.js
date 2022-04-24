@@ -181,7 +181,9 @@ router.get('/logout', (req, res) => {
 router.get('/loggedIn', (req, res) => {
   try {
     const token = req.cookies.token
-    console.log(req)
+    console.log(`COOKIES: ${req.cookies}`)
+    console.log(`SIGNED COOKIES: ${req.signedCookies}`)
+
 
     /////////////////////////////////////////////////////////
     //VALIDATION
