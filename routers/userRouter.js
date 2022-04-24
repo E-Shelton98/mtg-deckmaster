@@ -181,7 +181,7 @@ router.get('/logout', (req, res) => {
 router.get('/loggedIn', (req, res) => {
   try {
     const token = req.cookies.token
-    console.log(token)
+    console.log(req)
 
     /////////////////////////////////////////////////////////
     //VALIDATION
