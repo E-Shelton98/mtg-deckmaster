@@ -181,6 +181,7 @@ router.get('/logout', (req, res) => {
 router.get('/loggedIn', (req, res) => {
   try {
     const token = req.cookies.token
+    console.log(token)
 
     /////////////////////////////////////////////////////////
     //VALIDATION
@@ -190,7 +191,6 @@ router.get('/loggedIn', (req, res) => {
     /////////////////////////////////////////////////////////
     //JWT VERIFICATION
     jwt.verify(token, process.env.JWT_SECRET)
-    console.log(jwt)
 
     res.status(200).send(true)
   } catch (err) {
