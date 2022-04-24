@@ -24,6 +24,7 @@ const JSONStream = require('JSONStream')
 //Import card model for pushing card data through mongoose
 const Card = require('./models/cardModel')
 
+
 /////////////////////////////////////////////////////////////
 //SET UP SERVER
 //Create an application using the express function
@@ -44,25 +45,36 @@ const limiter = rateLimit({
 //Start the server listening on the chosen port
 app.listen(PORT)
 
+
+
 //Create library by establishing mongoose connection
 //Removing all cards from current library
 //And streaming a new library to the database using ScryFall oracle bulk
 async function libraryCreator() {
-  try {
-    await mongoose
-      .connect(process.env.MDB_CONNECT)
-      .then(console.log('Connected to MongoDB'))
-  } catch (error) {
-    console.error(error)
-  }
-
+  //Connect to database
+  await mongoose
+    .connect(process.env.MDB_CONNECT, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(() => {
+      console.log('Successfully connected to database')
+    })
+    .catch((error) => {
+      console.log('database connection failed. exiting now...')
+      console.error(error)
+      process.exit(1)
+    })
   //Delete all cards from the card collection in the database
   //Log amount of deleted cards for tracking purposes
   await Card.deleteMany()
     .then((res) => console.log(`deleted ${res.deletedCount} cards from db.`))
     .catch((e) => console.error(e))
 
-  // where the data will end up
+  //Disconnect from db because 'stream-to-mongoDB' reconnects
+  await mongoose.disconnect()
+  
+  //Set 'stream-to-mongodb' options
   const outputDBConfig = {
     dbURL: process.env.MDB_CONNECT,
     collection: 'cards',
