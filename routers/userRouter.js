@@ -91,9 +91,10 @@ router.post('/', async (req, res) => {
       .cookie('token', token, {
         httpOnly: true,
         secure: true,
-        sameSite: "none"
+        sameSite: 'none',
       })
-      .status(200).send()
+      .status(200)
+      .send()
   } catch (err) {
     console.error(err)
     res.status(500).send()
@@ -158,8 +159,7 @@ router.post('/login', async (req, res) => {
       .cookie('token', token, {
         httpOnly: true,
         secure: true,
-        SameSite: 'none',
-
+        sameSite: 'none',
       })
       .send()
   } catch (err) {
@@ -183,7 +183,6 @@ router.get('/loggedIn', (req, res) => {
   try {
     const token = req.cookies.token
     console.log(req.cookies)
-
 
     /////////////////////////////////////////////////////////
     //VALIDATION
