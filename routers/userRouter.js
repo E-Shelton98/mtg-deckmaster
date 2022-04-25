@@ -173,6 +173,7 @@ router.get('/logout', (req, res) => {
   res
     .cookie('token', '', {
       httpOnly: true,
+      secure: true,
       sameSite: 'none',
       expires: new Date(0),
     })
