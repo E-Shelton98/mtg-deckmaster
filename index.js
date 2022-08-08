@@ -24,7 +24,6 @@ const JSONStream = require('JSONStream')
 //Import card model for pushing card data through mongoose
 const Card = require('./models/cardModel')
 
-
 /////////////////////////////////////////////////////////////
 //SET UP SERVER
 //Create an application using the express function
@@ -44,8 +43,6 @@ const limiter = rateLimit({
 
 //Start the server listening on the chosen port
 app.listen(PORT)
-
-
 
 //Create library by establishing mongoose connection
 //Removing all cards from current library
@@ -70,7 +67,7 @@ async function libraryCreator() {
   await Card.deleteMany()
     .then((res) => console.log(`deleted ${res.deletedCount} cards from db.`))
     .catch((e) => console.error(e))
- 
+
   //Set 'stream-to-mongodb' options
   const outputDBConfig = {
     dbURL: process.env.MDB_CONNECT,
@@ -122,7 +119,7 @@ app.use(limiter)
 //CORS WITH STRICT ORIGIN
 app.use(
   cors({
-    origin: 'https://mtg-deckmaster.netlify.app',
+    origin: ['https://mtg-deckmaster.netlify.app', 'http://localhost:3000'],
     credentials: true,
     optionsSuccessStatus: 200,
   })

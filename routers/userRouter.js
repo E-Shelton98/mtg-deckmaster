@@ -149,8 +149,6 @@ router.post('/login', async (req, res) => {
       process.env.JWT_SECRET
     )
 
-    console.log('login token sign: ', token)
-
     /////////////////////////////////////////////////////////
     //SEND TOKEN AS HTTP-ONLY COOKIE
 
@@ -184,7 +182,6 @@ router.get('/logout', (req, res) => {
 router.get('/loggedIn', (req, res) => {
   try {
     const token = req.cookies.token
-    console.log(req.cookies)
 
     /////////////////////////////////////////////////////////
     //VALIDATION
