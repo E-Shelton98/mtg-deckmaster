@@ -16,6 +16,7 @@ const deckSchema = new mongoose.Schema({
   created: { type: Date, default: Date.now },
   updated: { type: Date, Default: Date.now },
   cards: { type: Array, required: true },
+  colors: { type: String, default: ''},
   performance: {
     wins: Number,
     losses: Number,

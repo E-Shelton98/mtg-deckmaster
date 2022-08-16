@@ -16,11 +16,11 @@ const auth = require('../middleware/auth')
 router.post('/', auth, async (req, res) => {
   try {
     //Extract variables from request body
-    const { name, deckType, created, updated, cards } = req.body
+    const { name, deckType, created, updated, cards, colors } = req.body
     const user = req.user
     /////////////////////////////////////////////////////////
     //VALIDATION
-    //if there is not a deck name, or cards...
+    //if there is not a deck name, cards, or deckType...
     if (!name || !cards || !deckType) {
       res.status(400).json({
         errorMessage: 'All decks must have a name, cards, and deck type.',
@@ -36,6 +36,7 @@ router.post('/', auth, async (req, res) => {
       created,
       updated,
       cards,
+      colors,
       user,
     })
 
@@ -51,11 +52,34 @@ router.post('/', auth, async (req, res) => {
 
 router.get('/', auth, async (req, res) => {
   try {
-    const decks = await Deck.find({ user: req.user })
+    let queryObj = {user: req.user}
+
+    for (const [key, value] of Object.entries(req.query)) {
+      if (key === 'colors') {
+        //SET QUERY VARIABLES
+        let colors = Array.from(req.query.colors)
+        if (colors.indexOf('X') === -1) {
+          queryObj['colors'] = colors
+        }
+      } else if (key === 'format') {
+        if (value != undefined && value != '') {
+          queryObj['deckType'] = value
+        }
+      } else if (key === 'name') {
+        if (value !== 'undefined' && value != '') {
+          queryObj['name'] = value
+        }
+      }
+    }
+
+    console.log('deckRouter queryObj: ',queryObj)
+
+    let decks = await Deck.find(queryObj)
+
     res.json(decks)
-   } catch (err) {
-     console.error(err)
-     res.status(500).send()
+  } catch (err) {
+    console.error(err)
+    res.status(500).send()
   }
 })
 
