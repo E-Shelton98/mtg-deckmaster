@@ -52,7 +52,7 @@ router.post('/', auth, async (req, res) => {
 
 router.get('/', auth, async (req, res) => {
   try {
-    let queryObj = {user: req.user}
+    let queryObj = { user: req.user }
 
     for (const [key, value] of Object.entries(req.query)) {
       if (key === 'colors') {
@@ -72,9 +72,10 @@ router.get('/', auth, async (req, res) => {
       }
     }
 
-    console.log('deckRouter queryObj: ',queryObj)
+    console.log('deckRouter queryObj: ', queryObj)
 
     let decks = await Deck.find(queryObj)
+    console.log('found Decks: ', decks)
 
     res.json(decks)
   } catch (err) {
