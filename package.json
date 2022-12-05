@@ -32,11 +32,12 @@
     "node-fetch": "^2.6.7",
     "request": "^2.88.2",
     "stream-to-mongo-db": "^1.6.0",
-    "undici": "^4.14.1"
+    "undici": "^4.14.1",
+    "numeral": "^2.0.6"
   },
   "devDependencies": {
-    "nodemon": "^2.0.15",
-    "numeral": "^2.0.6"
+    "nodemon": "^2.0.15"
+    
   },
   "bugs": {
     "url": "https://github.com/E-Shelton98/mtg-deckmaster-back/issues"
